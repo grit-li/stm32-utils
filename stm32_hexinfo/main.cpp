@@ -223,7 +223,7 @@ static void parseHexFile(const uint8_t* buffer, uint32_t len)
 int main(int argc, char** argv)
 {
     if(argc <= 1) {
-        printf("hexinfo [HEX FILE]\n");
+        printf("stm32_hexinfo [HEX FILE]\n");
         return -1;
     }
     const char* hexFile = argv[1];
