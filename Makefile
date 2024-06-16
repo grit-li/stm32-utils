@@ -5,6 +5,7 @@ include $(TOP)/Makefile.func
 
 DIRS += stm32_hexinfo
 DIRS += stm32_bin2hex
+DIRS += stm32_hexmerge
 
 .PHONY: rebuild all clean $(DIRS)
 all: 
