@@ -1,0 +1,77 @@
+include $(TOP)/Makefile.build
+include $(TOP)/Makefile.func
+
+######################################
+# path
+######################################
+BIN_PATH = $(ROOT_PATH)/bin
+OUTPUT_PATH = $(TOP)/out
+
+######################################
+# source
+######################################
+sinclude Makefile.source.in
+
+SOURCES ?= 
+ASM_SOURCES ?= $(filter %.s,$(SOURCES))
+C_SOURCES ?= $(filter %.c,$(SOURCES))
+CPP_SOURCES ?= $(filter %.cpp,$(SOURCES))
+
+vpath
+vpath %.s $(sort $(dir $(ASM_SOURCES)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
+vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
+
+######################################
+# obj
+######################################
+OBJ_DIR := obj
+OBJECT_FILE = $(notdir $(C_SOURCES:.c=.o)) $(notdir $(ASM_SOURCES:.s=.o)) $(notdir $(CPP_SOURCES:.cpp=.o))
+OBJECT_FILE := $(addprefix $(OBJ_DIR)/,$(OBJECT_FILE))
+
+######################################
+# flags
+######################################
+FLAGS = 
+
+# compile gcc flags
+ASFLAGS = $(FLAGS) 
+
+CFLAGS = $(FLAGS)
+
+CXXFLAGS = $(FLAGS) -fno-rtti -fno-exceptions
+
+# link script
+LDFLAGS += -Wl,-Map=$(BIN_PATH)/$(TARGET).map,--cref -Wl,--gc-sections
+
+.PHONY: all clean
+all: $(OBJECT_FILE) Makefile | $(OBJ_DIR)
+	@$(MAKE) $(BIN_PATH)/$(TARGET)
+
+clean:
+	@$(RM) -rf $(OBJ_DIR)
+	@$(RM) -rf $(BIN_PATH)
+
+$(OBJ_DIR) $(BIN_PATH) $(OUTPUT_PATH):
+	@$(MKDIR) -p $@
+
+$(OBJ_DIR)/%.o: %.cpp Makefile | $(OBJ_DIR)
+	@$(call PRINT_COMPILE_CPP,"$<")
+	@$(XCXX) -E $(CXXFLAGS) $< -o $(@:.o=.i)
+	@$(XCXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(OBJ_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+
+$(OBJ_DIR)/%.o: %.c Makefile | $(OBJ_DIR)
+	@$(call PRINT_COMPILE_C,"$<")
+	@$(XCC) -E $(CFLAGS) $< -o $(@:.o=.i)
+	@$(ECHO) $(CFLAGS)
+	@$(XCC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OBJ_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+
+$(OBJ_DIR)/%.o: %.s Makefile | $(OBJ_DIR)
+	@$(call PRINT_COMPILE_ASM,"$<")
+	@$(XAS) -E $(ASFLAGS) $< -o $(@:.o=.i)
+	@$(XAS) -c $(ASFLAGS) -Wa,-a,-ad,-alms=$(OBJ_DIR)/$(notdir $(<:.s=.lst)) $< -o $@
+
+$(BIN_PATH)/$(TARGET): $(OUTPUT_PATH) $(OBJECT_FILE) Makefile | $(BIN_PATH)
+	@$(call PRINT_COMPILE_ELF,"$(notdir $@)")
+	@$(XCXX) $(OBJECT_FILE) $(LDFLAGS) -o $@
+	@$(CP) $@ $<

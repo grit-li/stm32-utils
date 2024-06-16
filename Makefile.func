@@ -1,0 +1,29 @@
+include $(TOP)/Makefile.color
+
+define FOREACH_EXECUTE_FUNC 
+	@for dir in $(1); do \
+    if test -d $$dir; then \
+      if \
+      ( \
+        cd $$dir; \
+        if test -f Makefile; then \
+          $(ECHO) "cd $$dir: make $(2)";\
+          $(MAKE) -s $(2); \
+        else \
+          $(ECHO) $(call FONT_COLOR_HIGHT_RED, "$$dir Have no Makefile"); \
+        fi \
+      ); \
+      then \
+        true; \
+      else \
+        exit 1; \
+      fi; \
+    fi \
+  done
+endef
+
+define MAKE_SUBPRO_FUNC 
+	@if test -d $(1); then \
+		$(MAKE) -sC $(1); \
+	fi
+endef

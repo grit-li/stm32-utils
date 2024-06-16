@@ -1,0 +1,30 @@
+BINUTIL_PREFIX := 
+
+XAR         :=   $(BINUTIL_PREFIX)ar
+XAS         :=   $(BINUTIL_PREFIX)gcc -x assembler-with-cpp
+XLD         :=   $(BINUTIL_PREFIX)ld
+XNM         :=   $(BINUTIL_PREFIX)nm
+XCC         :=   $(BINUTIL_PREFIX)gcc
+XGDB        :=   $(BINUTIL_PREFIX)gdb
+XCXX        :=   $(BINUTIL_PREFIX)g++
+XCPP        :=   $(BINUTIL_PREFIX)cpp
+XSIZE       :=   $(BINUTIL_PREFIX)size
+XSTRIP      :=   $(BINUTIL_PREFIX)strip
+XELFEDIT    :=   $(BINUTIL_PREFIX)elfedit
+XOBJCOPY    :=   $(BINUTIL_PREFIX)objcopy
+XOBJDUMP    :=   $(BINUTIL_PREFIX)objdump
+XREADELF    :=   $(BINUTIL_PREFIX)readelf
+XSTRINGS    :=   $(BINUTIL_PREFIX)strings
+XCXX_FILT   :=   $(BINUTIL_PREFIX)c++filt
+XADD2LINE   :=   $(BINUTIL_PREFIX)addr2line
+
+CAT   := cat
+CP    := cp
+DD    := dd
+ECHO  := echo
+GREP  := grep
+MKDIR := mkdir
+MV    := mv
+RM    := rm
+SH    := sh
+CD    := cd

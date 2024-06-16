@@ -1,0 +1,12 @@
+include $(TOP)/Makefile.build
+include $(TOP)/Makefile.func
+
+sinclude Makefile.dirs.in
+
+.PHONY: rebuild all clean $(DIRS)
+all clean:
+	@$(call FOREACH_EXECUTE_FUNC,$(DIRS),$@)
+
+rebuild:
+	@$(MAKE) clean --no-print-directory
+	@$(MAKE) all --no-print-directory
