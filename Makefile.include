@@ -63,7 +63,6 @@ $(OBJ_DIR)/%.o: %.cpp Makefile | $(OBJ_DIR)
 $(OBJ_DIR)/%.o: %.c Makefile | $(OBJ_DIR)
 	@$(call PRINT_COMPILE_C,"$<")
 	@$(XCC) -E $(CFLAGS) $< -o $(@:.o=.i)
-	@$(ECHO) $(CFLAGS)
 	@$(XCC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OBJ_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(OBJ_DIR)/%.o: %.s Makefile | $(OBJ_DIR)
