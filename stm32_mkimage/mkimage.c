@@ -9,10 +9,10 @@ struct image_type_params *mkimage_tparams = NULL;
 
 /* parameters initialized by core will be used by the image type code */
 struct mkimage_params params = {
-    .os = IH_OS_LINUX,
-    .arch = IH_ARCH_PPC,
+    .os = IH_OS_RTTHREAD,
+    .arch = IH_ARCH_ARM,
     .type = IH_TYPE_KERNEL,
-    .comp = IH_COMP_GZIP,
+    .comp = IH_COMP_NONE,
     .dtc = MKIMAGE_DEFAULT_DTC_OPTIONS,
     .imagename = "",
 };
@@ -150,11 +150,6 @@ main (int argc, char **argv)
                     genimg_get_comp_id (*++argv)) < 0)
                     usage ();
                 goto NXTARG;
-            case 'D':
-                if (--argc <= 0)
-                    usage ();
-                params.dtc = *++argv;
-                goto NXTARG;
 
             case 'O':
                 if ((--argc <= 0) ||
@@ -199,17 +194,6 @@ main (int argc, char **argv)
                     exit (EXIT_FAILURE);
                 }
                 params.eflag = 1;
-                goto NXTARG;
-            case 'f':
-                if (--argc <= 0)
-                    usage ();
-                /*
-                 * The flattened image tree (FIT) format
-                 * requires a flattened device tree image type
-                 */
-                params.type = IH_TYPE_FLATDT;
-                params.datafile = *++argv;
-                params.fflag = 1;
                 goto NXTARG;
             case 'n':
                 if (--argc <= 0)
@@ -339,64 +323,7 @@ NXTARG:        ;
         exit (EXIT_FAILURE);
     }
 
-    if (params.type == IH_TYPE_MULTI || params.type == IH_TYPE_SCRIPT) {
-        char *file = params.datafile;
-        uint32_t size;
-
-        for (;;) {
-            char *sep = NULL;
-
-            if (file) {
-                if ((sep = strchr(file, ':')) != NULL) {
-                    *sep = '\0';
-                }
-
-                if (stat (file, &sbuf) < 0) {
-                    fprintf (stderr, "%s: Can't stat %s: %s\n",
-                        params.cmdname, file, strerror(errno));
-                    exit (EXIT_FAILURE);
-                }
-                size = cpu_to_uimage (sbuf.st_size);
-            } else {
-                size = 0;
-            }
-
-            if (write(ifd, (char *)&size, sizeof(size)) != sizeof(size)) {
-                fprintf (stderr, "%s: Write error on %s: %s\n",
-                    params.cmdname, params.imagefile,
-                    strerror(errno));
-                exit (EXIT_FAILURE);
-            }
-
-            if (!file) {
-                break;
-            }
-
-            if (sep) {
-                *sep = ':';
-                file = sep + 1;
-            } else {
-                file = NULL;
-            }
-        }
-
-        file = params.datafile;
-
-        for (;;) {
-            char *sep = strchr(file, ':');
-            if (sep) {
-                *sep = '\0';
-                copy_file (ifd, file, 1);
-                *sep++ = ':';
-                file = sep;
-            } else {
-                copy_file (ifd, file, 0);
-                break;
-            }
-        }
-    } else {
-        copy_file (ifd, params.datafile, 0);
-    }
+    copy_file (ifd, params.datafile, 0);
 
     /* We're a bit of paranoid */
 #if defined(_POSIX_SYNCHRONIZED_IO) && \
@@ -561,8 +488,5 @@ usage ()
              "          -d ==> use image data from 'datafile'\n"
              "          -x ==> set XIP (execute in place)\n",
         params.cmdname);
-    fprintf (stderr, "       %s [-D dtc_options] -f fit-image.its fit-image\n",
-        params.cmdname);
-
     exit (EXIT_FAILURE);
 }
